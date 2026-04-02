@@ -21,48 +21,32 @@ const XIRSYS_URL     = `https://global.xirsys.net/_turn/${XIRSYS_CHANNEL}`;
  * These expire every ~30s so fetch fresh ones per request.
  */
 async function fetchXirsysIce() {
-  if (!XIRSYS_IDENT || !XIRSYS_SECRET) {
-    throw new Error("Xirsys credentials not configured");
-  }
-  try {
-    const auth = Buffer.from(`${XIRSYS_IDENT}:${XIRSYS_SECRET}`).toString("base64");
-    const res = await fetch(XIRSYS_URL, {
-      method: "PUT",
-      headers: {
-        "Authorization": `Basic ${auth}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ format: "urls" }),
-    });
-    if (!res.ok) throw new Error(`Xirsys error: ${res.status}`);
-    const data = await res.json();
-    if (!data || !data.v) throw new Error("Empty Xirsys response");
-    if (Array.isArray(data.v)) return data.v;
-    if (Array.isArray(data.v.iceServers)) return data.v.iceServers;
-    if (typeof data.v === "object") {
-      const servers = Object.values(data.v).flat();
-      if (Array.isArray(servers) && servers.length > 0) return servers;
-    }
-    throw new Error("Could not parse Xirsys response");
-  } catch (err) {
-    console.warn("[ICE] Xirsys dynamic fetch failed, using static credentials:", err.message);
-    // Static TURN credentials as reliable fallback
-    return [
-      { urls: ["stun:hk-turn1.xirsys.com"] },
-      {
-        username: "Eoh2K0QdtX7LG1unt_eJG7Q0SGsAJzgRzZHbVALRDH6YA-x3a28itvp8arug0JBbAAAAAGnOVTNiYWlpc3NvZ3dhcG8=",
-        credential: "76faf652-2e88-11f1-948f-da6ccbf73937",
-        urls: [
-          "turn:hk-turn1.xirsys.com:80?transport=udp",
-          "turn:hk-turn1.xirsys.com:3478?transport=udp",
-          "turn:hk-turn1.xirsys.com:80?transport=tcp",
-          "turn:hk-turn1.xirsys.com:3478?transport=tcp",
-          "turns:hk-turn1.xirsys.com:443?transport=tcp",
-          "turns:hk-turn1.xirsys.com:5349?transport=tcp"
-        ]
-      }
-    ];
-  }
+  // Metered.ca TURN servers — reliable free tier
+  return [
+    {
+      urls: "stun:stun.relay.metered.ca:80",
+    },
+    {
+      urls: "turn:global.relay.metered.ca:80",
+      username: "cb2a535a3de42af7e7dc16be",
+      credential: "rQ66s8KyKOWgXNiy",
+    },
+    {
+      urls: "turn:global.relay.metered.ca:80?transport=tcp",
+      username: "cb2a535a3de42af7e7dc16be",
+      credential: "rQ66s8KyKOWgXNiy",
+    },
+    {
+      urls: "turn:global.relay.metered.ca:443",
+      username: "cb2a535a3de42af7e7dc16be",
+      credential: "rQ66s8KyKOWgXNiy",
+    },
+    {
+      urls: "turns:global.relay.metered.ca:443?transport=tcp",
+      username: "cb2a535a3de42af7e7dc16be",
+      credential: "rQ66s8KyKOWgXNiy",
+    },
+  ];
 }
 
 const server = http.createServer(async (req, res) => {
