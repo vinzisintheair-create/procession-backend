@@ -11,8 +11,8 @@ const { WebSocketServer } = require("ws");
 const PORT = process.env.PORT || 8080;
 
 // Xirsys credentials — override via environment variables in production
-const XIRSYS_IDENT   = process.env.XIRSYS_IDENT   || "baiissogwapo";
-const XIRSYS_SECRET  = process.env.XIRSYS_SECRET   || "14b7fcb8-2e49-11f1-895c-0242ac130003";
+const XIRSYS_IDENT   = process.env.XIRSYS_IDENT   || "";
+const XIRSYS_SECRET  = process.env.XIRSYS_SECRET   || "";
 const XIRSYS_CHANNEL = process.env.XIRSYS_CHANNEL  || "parish";
 const XIRSYS_URL     = `https://global.xirsys.net/_turn/${XIRSYS_CHANNEL}`;
 
