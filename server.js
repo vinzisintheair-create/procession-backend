@@ -67,7 +67,7 @@ const server = http.createServer(async (req, res) => {
       ];
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ iceServers: combined }));
-      console.log(`[ICE] Served ${combined.length} ICE servers (${xirsysServers.length} from Xirsys)`);
+      console.log(`[ICE] Served ${combined.length} ICE servers (${xirsysServers.length} from Xirsys):`, JSON.stringify(xirsysServers));
     } catch (err) {
       console.error("[ICE] Xirsys fetch failed:", err.message);
       // Fallback: Google STUN only
