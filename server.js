@@ -32,8 +32,16 @@ async function fetchXirsysIce() {
   });
   if (!res.ok) throw new Error(`Xirsys error: ${res.status} ${await res.text()}`);
   const data = await res.json();
-  // Xirsys returns { v: { iceServers: [...] } }
-  return Array.isArray(data.v) ? data.v : (data.v.iceServers || []);
+  // Xirsys can return { v: [...] } or { v: { iceServers: [...] } }
+  if (!data || !data.v) return [];
+  if (Array.isArray(data.v)) return data.v;
+  if (Array.isArray(data.v.iceServers)) return data.v.iceServers;
+  if (typeof data.v === "object") {
+    // Sometimes Xirsys wraps each server as a key
+    const servers = Object.values(data.v).flat();
+    return Array.isArray(servers) ? servers : [];
+  }
+  return [];
 }
 
 const server = http.createServer(async (req, res) => {
